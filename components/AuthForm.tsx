@@ -12,6 +12,7 @@ import { authFormSchema } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getLoggedInUser, signIn, signUp } from "@/lib/actions/user.action";
+import PlaidLink from "./PlaidLink";
 
 const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
@@ -32,11 +33,25 @@ const AuthForm = ({ type }: { type: string }) => {
     setIsLoading(true);
     try {
       //sign up with Appwrite & create plaid token
-
+      const userData = {
+        firstName:data.firstName!,
+        lastName:data.lastName!,
+        address1:data.address1!,
+        city:data.city!,
+        state:data.state!,
+        postalCode:data.postalCode!,
+        dateOfBirth:data.dateOfBirth!,
+        ssn:data.ssn!,
+        email:data.email,
+        password:data.password
+      }
+      console.log(userData);
       if (type === "sign-up") {
-       const newUser = await signUp(data)
-
+       
+        const newUser = await signUp(userData)
+        
        setUser(newUser)
+
       } else if (type === "sign-in") {
         const response = await signIn({
           email:data.email,
@@ -74,7 +89,7 @@ const AuthForm = ({ type }: { type: string }) => {
         </div>
       </header>
       {user ? (
-        <div className="flex flex-col gap-4">{/* PLaidLink */}</div>
+        <div className="flex flex-col gap-4"><PlaidLink user={user} variant={'primary'}/></div>
       ) : (
         <>
           <Form {...form}>
@@ -97,7 +112,7 @@ const AuthForm = ({ type }: { type: string }) => {
                   </div>
                   <CustomInput
                     control={form.control}
-                    name={"address"}
+                    name={"address1"}
                     label="Address"
                     placeholder="Enter your address"
                   />
@@ -149,17 +164,12 @@ const AuthForm = ({ type }: { type: string }) => {
                 label="Password"
                 placeholder="Enter your password"
               />
-              <CustomInput
-                control={form.control}
-                name={"username"}
-                label="Username"
-                placeholder="Enter your password"
-              />
               <div className="flex flex-col gap-4">
                 <Button className="form-btn" type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <>
-                      <Loader2 size={20} className="animate-spin" /> $nbsp
+                      <Loader2 size={20} className="animate-spin" /> 
+                      Loading...
                     </>
                   ) : type === "sign-in" ? (
                     "Sign In"
